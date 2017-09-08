@@ -76,8 +76,6 @@ func rename(path string, info os.FileInfo) {
 		} else {
 			log.Printf("will rename \"%s\" ==> %s", path, newPath)
 		}
-	} else {
-		log.Printf("ok: %s", path)
 	}
 
 	if !info.IsDir() {
@@ -116,9 +114,8 @@ func isHidden(path string) bool {
 func cleanName(path string) (string, bool) {
 	newPath, changed := path, false
 
-	if strings.ContainsAny(path, "-_[] ") {
+	if strings.ContainsAny(path, "_[] ") {
 		newPath = strings.Replace(path, " ", ".", -1)
-		newPath = strings.Replace(newPath, "-", ".", -1)
 		newPath = strings.Replace(newPath, "_", ".", -1)
 		newPath = strings.Replace(newPath, "[", ".", -1)
 		newPath = strings.Replace(newPath, "]", ".", -1)
