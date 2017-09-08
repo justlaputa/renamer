@@ -8,18 +8,35 @@ import (
 	"strings"
 )
 
+var options = struct {
+	DryRun bool
+}{false}
+
 func main() {
 	args := os.Args[1:]
-
-	if len(args) > 1 {
-		log.Fatal("too many arguments")
-		usage()
-	}
 
 	path := "."
 
 	if len(args) == 1 {
-		path = args[0]
+		if args[0] == "-n" {
+			options.DryRun = true
+		} else {
+			path = args[0]
+		}
+	} else if len(args) == 2 {
+		options.DryRun = true
+
+		if args[0] == "-n" {
+			path = args[1]
+		} else if args[1] == "-n" {
+			path = args[0]
+		} else {
+			log.Fatal("invalid arguments")
+			usage()
+		}
+	} else if len(args) > 2 {
+		log.Fatal("too many arguments")
+		usage()
 	}
 
 	info, err := os.Lstat(path)
@@ -31,8 +48,8 @@ func main() {
 }
 
 func usage() {
-	fmt.Printf("renamer [path]")
-	fmt.Printf("rename all folders and files in [path], to a clean form")
+	fmt.Printf("renamer [-n] [path]")
+	fmt.Printf("rename all folders and files in [path], to a clean form. set [-n] to dry run")
 }
 
 // rename rename path to clean name, if path is directory, recursively
@@ -48,12 +65,16 @@ func rename(path string, info os.FileInfo) {
 
 	if newFile, changed := cleanName(file); changed {
 		newPath := filepath.Join(dir, newFile)
-		err := os.Rename(path, newPath)
-		if err != nil {
-			log.Printf("failed to rename file %s ==> %s, %v", path, newPath, err)
+		if !options.DryRun {
+			err := os.Rename(path, newPath)
+			if err != nil {
+				log.Printf("failed to rename \"%s\" ==> %s, %v", path, newPath, err)
+			} else {
+				log.Printf("rename \"%s\" ==> %s", path, newPath)
+				path = newPath
+			}
 		} else {
-			log.Printf("rename %s ==> %s", path, newPath)
-			path = newPath
+			log.Printf("will rename \"%s\" ==> %s", path, newPath)
 		}
 	} else {
 		log.Printf("ok: %s", path)
@@ -95,8 +116,9 @@ func isHidden(path string) bool {
 func cleanName(path string) (string, bool) {
 	newPath, changed := path, false
 
-	if strings.ContainsAny(path, "-_[]") {
-		newPath = strings.Replace(path, "-", ".", -1)
+	if strings.ContainsAny(path, "-_[] ") {
+		newPath = strings.Replace(path, " ", ".", -1)
+		newPath = strings.Replace(newPath, "-", ".", -1)
 		newPath = strings.Replace(newPath, "_", ".", -1)
 		newPath = strings.Replace(newPath, "[", ".", -1)
 		newPath = strings.Replace(newPath, "]", ".", -1)
