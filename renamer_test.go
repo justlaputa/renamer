@@ -28,17 +28,26 @@ func TestReplaceSpace(t *testing.T) {
 func TestReplaceOthers(t *testing.T) {
 	inputs := []struct {
 		src    string
+		out    string
 		reason string
 	}{
-		{"Ghost_in_the_Shell_S.A.C_Individual_Eleven_[720p,BluRay,x264]_-_THORA", "replace underscore and comma"},
+		{
+			"Ghost_in_the_Shell_S.A.C_Individual_Eleven_[720p,BluRay,x264]_-_THORA",
+			"Ghost.in.the.Shell.S.A.C.Individual.Eleven.720p.BluRay.x264.-.THORA",
+			"replace underscore and comma",
+		},
+		{
+			"There.Will.Be.Blood.2007.REPACK.720p.BluRay.x264-DON.chs&amp;eng[R3米粒修订].srt",
+			"There.Will.Be.Blood.2007.REPACK.720p.BluRay.x264-DON.chs.amp.eng.R3米粒修订..srt",
+			"replace &, commo",
+		},
 	}
 
-	output := "Ghost.in.the.Shell.S.A.C.Individual.Eleven.720p.BluRay.x264.-.THORA"
 	for _, input := range inputs {
 		o := replaceOthers(input.src)
-		if o != output {
+		if o != input.out {
 			t.Errorf("%s:\ninput: %s\nexpected: %s\ngot: %s\n",
-				input.reason, input.src, output, o,
+				input.reason, input.src, input.out, o,
 			)
 		}
 	}

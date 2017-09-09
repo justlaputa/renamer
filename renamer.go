@@ -129,7 +129,7 @@ func replaceSpece(src string) string {
 }
 
 func replaceOthers(src string) string {
-	re := regexp.MustCompile("[_,\\[\\]]+")
+	re := regexp.MustCompile("[_,\\[\\]&;]+")
 
 	return re.ReplaceAllLiteralString(src, ".")
 }
