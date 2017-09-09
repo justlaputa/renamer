@@ -67,13 +67,17 @@ func rename(path string, info os.FileInfo) {
 	if newFile, changed := cleanName(file); changed {
 		newPath := filepath.Join(dir, newFile)
 		if !options.DryRun {
-			//TODO check new path already exists or not
-			err := os.Rename(path, newPath)
-			if err != nil {
-				log.Printf("failed to rename \"%s\" ==> %s, %v", path, newPath, err)
+			//Only rename the path if new path does not exist
+			if _, err := os.Lstat(newPath); os.IsNotExist(err) {
+				err = os.Rename(path, newPath)
+				if err != nil {
+					log.Printf("failed to rename \"%s\" ==> %s, %v", path, newPath, err)
+				} else {
+					log.Printf("rename \"%s\" ==> %s", path, newPath)
+					path = newPath
+				}
 			} else {
-				log.Printf("rename \"%s\" ==> %s", path, newPath)
-				path = newPath
+				log.Printf("skip rename, new path already exists: %s", newPath)
 			}
 		} else {
 			log.Printf("will rename \"%s\" ==> %s", path, newPath)
