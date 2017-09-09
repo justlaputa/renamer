@@ -34,12 +34,17 @@ func TestReplaceOthers(t *testing.T) {
 		{
 			"Ghost_in_the_Shell_S.A.C_Individual_Eleven_[720p,BluRay,x264]_-_THORA",
 			"Ghost.in.the.Shell.S.A.C.Individual.Eleven.720p.BluRay.x264.-.THORA",
-			"replace underscore and comma",
+			"replace underscore and comma, brackets",
 		},
 		{
 			"There.Will.Be.Blood.2007.REPACK.720p.BluRay.x264-DON.chs&amp;eng[R3米粒修订].srt",
 			"There.Will.Be.Blood.2007.REPACK.720p.BluRay.x264-DON.chs.amp.eng.R3米粒修订..srt",
 			"replace &, commo",
+		},
+		{
+			"Ghost_in_the_Shell_2_Innocence_(2004)_[720p,BluRay,DTS-ES,x264]_-_THORA",
+			"Ghost.in.the.Shell.2.Innocence.2004.720p.BluRay.DTS-ES.x264.-.THORA",
+			"replace parentheses",
 		},
 	}
 
