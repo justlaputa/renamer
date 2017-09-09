@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -66,6 +67,7 @@ func rename(path string, info os.FileInfo) {
 	if newFile, changed := cleanName(file); changed {
 		newPath := filepath.Join(dir, newFile)
 		if !options.DryRun {
+			//TODO check new path already exists or not
 			err := os.Rename(path, newPath)
 			if err != nil {
 				log.Printf("failed to rename \"%s\" ==> %s, %v", path, newPath, err)
@@ -112,15 +114,35 @@ func isHidden(path string) bool {
 }
 
 func cleanName(path string) (string, bool) {
-	newPath, changed := path, false
+	newPath := replaceSpece(path)
+	newPath = replaceOthers(newPath)
+	newPath = deduplicate(newPath)
 
-	if strings.ContainsAny(path, "_[] ") {
-		newPath = strings.Replace(path, " ", ".", -1)
-		newPath = strings.Replace(newPath, "_", ".", -1)
-		newPath = strings.Replace(newPath, "[", ".", -1)
-		newPath = strings.Replace(newPath, "]", ".", -1)
-		changed = true
-	}
+	return newPath, newPath != path
+}
 
-	return newPath, changed
+func replaceSpece(src string) string {
+	src = strings.TrimSpace(src)
+	re := regexp.MustCompile("[\t\n\f\r ]+")
+
+	return re.ReplaceAllLiteralString(src, ".")
+}
+
+func replaceOthers(src string) string {
+	re := regexp.MustCompile("[_,\\[\\]]+")
+
+	return re.ReplaceAllLiteralString(src, ".")
+}
+
+func deduplicate(src string) string {
+
+	re := regexp.MustCompile("[\\.]{2,}")
+	src = re.ReplaceAllLiteralString(src, ".")
+
+	re = regexp.MustCompile("[-]{2,}")
+	src = re.ReplaceAllLiteralString(src, "-")
+
+	re = regexp.MustCompile("[\\.]*-[\\.]*")
+
+	return re.ReplaceAllLiteralString(src, "-")
 }
