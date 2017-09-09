@@ -60,7 +60,8 @@ func rename(path string, info os.FileInfo) {
 	dir, file := filepath.Split(path)
 
 	if isHidden(file) {
-		log.Printf("skip hidden file: %s", file)
+		log.Printf("skip hidden file:")
+		log.Printf("  %s", path)
 		return
 	}
 
@@ -71,16 +72,23 @@ func rename(path string, info os.FileInfo) {
 			if _, err := os.Lstat(newPath); os.IsNotExist(err) {
 				err = os.Rename(path, newPath)
 				if err != nil {
-					log.Printf("failed to rename \"%s\" ==> %s, %v", path, newPath, err)
+					log.Printf("failed to rename: %v", err)
+					log.Printf("  %s ==>", path)
+					log.Printf("  %s", newPath)
 				} else {
-					log.Printf("rename \"%s\" ==> %s", path, newPath)
+					log.Printf("rename:")
+					log.Printf("  %s ==>", path)
+					log.Printf("  %s", newPath)
 					path = newPath
 				}
 			} else {
-				log.Printf("skip rename, new path already exists: %s", newPath)
+				log.Printf("skip rename, new path already exists:")
+				log.Printf("  %s", newPath)
 			}
 		} else {
-			log.Printf("will rename \"%s\" ==> %s", path, newPath)
+			log.Printf("will rename:")
+			log.Printf("  %s ==>", path)
+			log.Printf("  %s", newPath)
 		}
 	}
 
